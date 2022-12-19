@@ -9,7 +9,7 @@ import androidx.databinding.ViewDataBinding
 abstract class BaseActivity<T : ViewDataBinding> : AppCompatActivity() {
     @get:LayoutRes
     abstract val layoutId: Int
-    lateinit var _binding: T
+    private lateinit var _binding: T
     val binding: T
         get() = _binding
 
