@@ -13,7 +13,7 @@ import androidx.fragment.app.Fragment
 abstract class BaseFragment<T : ViewDataBinding> : Fragment() {
     @get:LayoutRes
     abstract val layoutId: Int
-    lateinit var _binding: T
+    private lateinit var _binding: T
     val binding: T
         get() = _binding
     protected lateinit var backButtonCallBack: OnBackPressedCallback

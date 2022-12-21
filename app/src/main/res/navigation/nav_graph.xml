@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/search">
+    app:startDestination="@id/bottom_nav_search">
     <fragment
-        android:id="@+id/search"
+        android:id="@+id/bottom_nav_search"
         android:name="com.example.movieapp.ui.search.SearchFragment"
         tools:layout="@layout/fragment_search"/>
     <fragment
-        android:id="@+id/favorite"
+        android:id="@+id/bottom_nav_favorite"
         android:name="com.example.movieapp.ui.favorite.FavoriteFragment"
         tools:layout="@layout/fragment_favorite"/>
 </navigation>
