@@ -14,8 +14,13 @@
         <entry key="..\:/Users/jdm/Documents/Grip_Android_JooDongMin/app/src/main/res/menu/bottom_navigation_menu.xml" value="0.45740740740740743" />
         <entry key="..\:/Users/jdm/Documents/Grip_Android_JooDongMin/app/src/main/res/menu/menu_bottom_nav.xml" value="0.3302083333333333" />
         <entry key="..\:/Users/jdm/Documents/Grip_Android_JooDongMin/app/src/main/res/menu/menu_toolbar.xml" value="0.3302083333333333" />
+        <entry key="..\:/Users/jdm/Documents/Grip_Android_JooDongMin/data/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.2851851851851852" />
+        <entry key="..\:/Users/jdm/Documents/Grip_Android_JooDongMin/data/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.2851851851851852" />
       </map>
     </option>
+  </component>
+  <component name="ProjectPlainTextFileTypeManager">
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/movieapp/const/Const.kt" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
