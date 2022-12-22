@@ -3,5 +3,7 @@
     <string name="str_search">검색</string>
     <string name="str_favorite">즐겨찾기</string>
     <string name="str_input_keyword">검색어를 입력해주세요.</string>
+    <string name="str_guide_add_favorite">즐겨찾기 하시겠습니까?</string>
+    <string name="str_cancel">취소</string>
 
 </resources>
