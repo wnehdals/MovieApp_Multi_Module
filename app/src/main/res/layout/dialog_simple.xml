@@ -12,20 +12,20 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:background="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="@color/white">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/simple_dialog_title_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="24dp"
+            android:gravity="center"
             android:textColor="@color/color_000000"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:gravity="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -47,32 +47,35 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/simple_dialog_title_tv"
             tools:text="" />
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/color_acb5bd"
             app:layout_constraintBottom_toTopOf="@+id/button_positive"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
         <View
             android:layout_width="1dp"
             android:layout_height="0dp"
             android:background="@color/color_acb5bd"
-            app:layout_constraintTop_toTopOf="@+id/button_positive"
             app:layout_constraintBottom_toBottomOf="@+id/button_positive"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toTopOf="@+id/button_positive" />
+
         <TextView
             android:id="@+id/button_negative"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:padding="12dp"
             android:textColor="@color/color_000000"
             android:textSize="14sp"
-            android:gravity="center"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/button_positive"
+            app:layout_constraintStart_toStartOf="parent"
 
             tools:text="닫기" />
 
@@ -80,13 +83,13 @@
             android:id="@+id/button_positive"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:padding="12dp"
+            android:textColor="@color/color_000000"
+            android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/button_negative"
-            android:textColor="@color/color_000000"
-            android:gravity="center"
-            android:textSize="14sp"
             tools:text="확인" />
 
 
