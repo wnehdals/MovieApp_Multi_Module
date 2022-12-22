@@ -13,20 +13,20 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(private val searchRepository: SearchRepository) :
     BaseViewModel() {
-    private val _searchUIState = MutableLiveData<SearchUI>(SearchUI.Uninitialized)
-    val searchUIState: LiveData<SearchUI> get() = _searchUIState
+    private val _searchUiState = MutableLiveData<SearchUi>(SearchUi.Uninitialized)
+    val searchUiState: LiveData<SearchUi> get() = _searchUiState
 
-    fun getSearchData() {
+    fun getSearchData(keyword: String, page: Int) {
         searchRepository
-            .getSearchResp("92e32667", "iron man", 1)
+            .getSearchResp("92e32667", keyword, page)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe { _searchUIState.value = SearchUI.Loading }
+            .doOnSubscribe { _searchUiState.value = SearchUi.Loading }
             .subscribe({
-                _searchUIState.value = SearchUI.Success(it)
+                _searchUiState.value = SearchUi.Success(it)
             }, { throwable ->
                 throwable.message?.let {
-                    _searchUIState.value = SearchUI.Fail(it)
+                    _searchUiState.value = SearchUi.Fail(it)
                 }
 
             })
@@ -34,14 +34,14 @@ class MainViewModel @Inject constructor(private val searchRepository: SearchRepo
 
 }
 
-sealed class SearchUI {
-    object Uninitialized : SearchUI()
-    object Loading : SearchUI()
+sealed class SearchUi {
+    object Uninitialized : SearchUi()
+    object Loading : SearchUi()
     data class Success(
         val resp: Search
-    ) : SearchUI()
+    ) : SearchUi()
 
     data class Fail(
         val resp: String
-    ) : SearchUI()
+    ) : SearchUi()
 }

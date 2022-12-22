@@ -1,13 +1,11 @@
 package com.example.data.mapper
 
-import android.util.Log
 import com.example.domain.model.Movie
 import com.example.domain.model.Search
 import com.example.movieapp.data.entity.SearchResp
 
 fun SearchResp.toSearch() = Search(
     movieList = searches.map {
-        Log.e("jdm_tag", it.toString())
         Movie(
             id = it.imdbId,
             title = it.title,
