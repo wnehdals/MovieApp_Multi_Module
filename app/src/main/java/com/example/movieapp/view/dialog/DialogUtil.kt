@@ -47,7 +47,9 @@ object DialogUtil {
         else {
             buttonNegative.text = negativeButtonText
             buttonNegative.setOnClickListener {
-                negativeButtonOnClickListener.onClick(dialog, DialogInterface.BUTTON_NEGATIVE)
+                if (negativeButtonOnClickListener != null) {
+                    negativeButtonOnClickListener.onClick(dialog, DialogInterface.BUTTON_NEGATIVE)
+                }
             }
         }
 
