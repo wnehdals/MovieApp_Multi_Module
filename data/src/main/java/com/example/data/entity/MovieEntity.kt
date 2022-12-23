@@ -1,16 +1,15 @@
 package com.example.movieapp.data.entity
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
+@Entity(tableName = "Movie")
 data class MovieEntity(
-    @SerializedName("imdbID")
-    val imdbId: String,
-    @SerializedName("Title")
+    @PrimaryKey(autoGenerate = false)
+    val id: String,
     val title: String,
-    @SerializedName("Year")
     val year: String,
-    @SerializedName("Type")
     val type: String,
-    @SerializedName("Poster")
     val poster: String
 )

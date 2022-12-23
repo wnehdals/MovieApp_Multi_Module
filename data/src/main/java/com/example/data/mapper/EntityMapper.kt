@@ -1,26 +1,20 @@
 package com.example.data.mapper
 
 import com.example.domain.model.Movie
-import com.example.domain.model.Search
-import com.example.movieapp.data.entity.SearchResp
+import com.example.movieapp.data.entity.MovieEntity
 
-fun SearchResp.toSearch() = Search(
-    movieList = searches.map {
-        Movie(
-            id = it.imdbId,
-            title = it.title,
-            year = it.year,
-            type = it.type,
-            poster = it.poster
-        )
-    }.toMutableList(),
-    totalCnt = totalCnt,
-    curPage = 0
-
+fun Movie.toMovieEntity() = MovieEntity(
+    id = id,
+    title = title,
+    year = year,
+    type = type,
+    poster = poster
 )
-
-fun SearchResp.toEmptySearch() = Search(
-    movieList = emptyList<Movie>().toMutableList(),
-    totalCnt = 0,
-    curPage = 0
+fun MovieEntity.toMovie() = Movie(
+    id = id,
+    title = title,
+    year = year,
+    type = type,
+    poster = poster,
+    isFavorite = true
 )

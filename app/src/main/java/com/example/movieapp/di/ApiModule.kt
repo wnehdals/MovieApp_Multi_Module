@@ -1,6 +1,6 @@
 package com.example.movieapp.di
 
-import com.example.data.api.ApiService
+import com.example.data.source.remote.ApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

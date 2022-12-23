@@ -1,18 +1,20 @@
-package com.example.movieapp.data.entity
+package com.example.domain.model
 
 import com.google.gson.annotations.SerializedName
-/*
+
 data class SearchResp(
     @SerializedName("Search")
-    val searches: MutableList<MovieEntity>,
+    val searches: MutableList<Movie>,
 
     @SerializedName("totalResults")
     val totalCnt: Int,
 
     @SerializedName("Response")
-    val response: Boolean,
-
-    )
+    val response: Boolean
 
 
- */
+    ) {
+    companion object {
+        val EMPTY = SearchResp(mutableListOf(), 0, false)
+    }
+}

@@ -1,8 +1,9 @@
 package com.example.movieapp.di
 
-import com.example.data.datasource.RemoteSearchDataSource
-import com.example.data.repository.SearchRepositoryImpl
-import com.example.domain.repository.SearchRepository
+import com.example.data.source.remote.RemoteMovieDataSource
+import com.example.data.repository.MovieRepositoryImpl
+import com.example.data.source.local.LocalMovieDataSource
+import com.example.domain.repository.MovieRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,7 +13,7 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 object RepositoryModule {
     @Provides
-    fun provideRepository(remoteDataSource: RemoteSearchDataSource): SearchRepository {
-        return SearchRepositoryImpl(remoteDataSource)
+    fun provideMovieRepository(remoteMovieDataSource: RemoteMovieDataSource, localMovieDataSource: LocalMovieDataSource): MovieRepository {
+        return MovieRepositoryImpl(remoteMovieDataSource, localMovieDataSource)
     }
 }

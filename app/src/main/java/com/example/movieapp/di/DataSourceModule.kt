@@ -1,7 +1,9 @@
 package com.example.movieapp.di
 
-import com.example.data.api.ApiService
-import com.example.data.datasource.RemoteSearchDataSource
+import com.example.data.source.remote.ApiService
+import com.example.data.source.local.dao.MovieDao
+import com.example.data.source.local.LocalMovieDataSource
+import com.example.data.source.remote.RemoteMovieDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,8 +15,12 @@ import javax.inject.Singleton
 object DataSourceModule {
     @Provides
     @Singleton
-    fun provideRemoteSearchDataSource(service: ApiService): RemoteSearchDataSource {
-        return RemoteSearchDataSource(service)
+    fun provideRemoteMovieDataSource(service: ApiService): RemoteMovieDataSource {
+        return RemoteMovieDataSource(service)
     }
-
+    @Provides
+    @Singleton
+    fun provideLocalMovieDataSource(movieDao: MovieDao): LocalMovieDataSource {
+        return LocalMovieDataSource(movieDao)
+    }
 }
