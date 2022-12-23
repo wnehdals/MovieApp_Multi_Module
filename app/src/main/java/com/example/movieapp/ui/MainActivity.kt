@@ -5,7 +5,9 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.movieapp.R
 import com.example.movieapp.base.BaseActivity
 import com.example.movieapp.databinding.ActivityMainBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>() {
     override val layoutId: Int
         get() = R.layout.activity_main
