@@ -7,9 +7,7 @@ import com.example.data.source.remote.RemoteMovieDataSource
 import com.example.domain.model.Movie
 import com.example.domain.model.SearchResp
 import com.example.domain.repository.MovieRepository
-import com.example.movieapp.data.entity.MovieEntity
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
 import javax.inject.Inject
 

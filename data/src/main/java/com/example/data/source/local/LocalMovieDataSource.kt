@@ -1,11 +1,8 @@
 package com.example.data.source.local
 
-import androidx.room.*
 import com.example.data.source.local.dao.MovieDao
-import com.example.domain.model.SearchResp
 import com.example.movieapp.data.entity.MovieEntity
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
 import javax.inject.Inject
 

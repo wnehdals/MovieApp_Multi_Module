@@ -3,9 +3,8 @@ package com.example.data.source.local.dao
 import androidx.room.*
 import com.example.movieapp.data.entity.MovieEntity
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.flow.Flow
+
 @Dao
 interface MovieDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
