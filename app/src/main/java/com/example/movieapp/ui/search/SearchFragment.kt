@@ -1,17 +1,15 @@
 package com.example.movieapp.ui.search
 
-import android.view.*
-import com.example.movieapp.R
-import com.example.movieapp.base.BaseFragment
-import com.example.movieapp.databinding.FragmentSearchBinding
-
+import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.domain.model.Movie
+import com.example.movieapp.R
+import com.example.movieapp.base.BaseFragment
+import com.example.movieapp.databinding.FragmentSearchBinding
 import com.example.movieapp.ui.MainViewModel
-import com.example.movieapp.ui.SearchUi
 import com.example.movieapp.view.dialog.DialogUtil
 import com.example.movieapp.view.listener.ItemTouchHelperCallback
 import com.example.movieapp.view.listener.OnClickMovieListener
@@ -25,9 +23,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
     val mainViewModel: MainViewModel by activityViewModels()
     private lateinit var itemTouchHelper: ItemTouchHelper
     private val PAGE_START = 1
-    private var itemCount = 0
     private var currentPage = PAGE_START
-    private var totalPage = 10
 
     private var isLastPage = false
     private var isLoading = false
@@ -35,21 +31,47 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
     private val movieAdapter by lazy {
         MovieAdapter(requireContext(), object : OnClickMovieListener {
             override fun onClick(item: Movie, position: Int) {
-                DialogUtil.makeSimpleDialog(
-                    context=requireContext(),
-                    title = getString(R.string.str_guide_add_favorite),
-                    message="",
-                    positiveButtonText = getString(R.string.str_favorite),
-                    negativeButtonText = getString(R.string.str_cancel),
-                    positiveButtonOnClickListener = { dialog, i ->
-                        dialog.dismiss()
-                    },
-                    negativeButtonOnClickListener = { dialog, i ->
-                        dialog.dismiss()
-                    }
-                ).show()
+                showSelectFavoriteDialog(item, position)
             }
         })
+    }
+
+    private fun showSelectFavoriteDialog(movie: Movie, position: Int) {
+        if (movie.isFavorite) {
+            DialogUtil.makeSimpleDialog(
+                context = requireContext(),
+                title = getString(R.string.str_guide_delete_favorite),
+                message = "",
+                positiveButtonText = getString(R.string.str_delete_favorite),
+                negativeButtonText = getString(R.string.str_cancel),
+                positiveButtonOnClickListener = { dialog, i ->
+                    dialog.dismiss()
+                    mainViewModel.removeFavoriteMovie(movie, position) {
+                        movieAdapter.updateItem(it)
+                    }
+                },
+                negativeButtonOnClickListener = { dialog, i ->
+                    dialog.dismiss()
+                }
+            ).show()
+        } else {
+            DialogUtil.makeSimpleDialog(
+                context = requireContext(),
+                title = getString(R.string.str_guide_add_favorite),
+                message = "",
+                positiveButtonText = getString(R.string.str_favorite),
+                negativeButtonText = getString(R.string.str_cancel),
+                positiveButtonOnClickListener = { dialog, i ->
+                    dialog.dismiss()
+                    mainViewModel.addFavoriteMovie(movie, position) {
+                        movieAdapter.updateItem(position)
+                    }
+                },
+                negativeButtonOnClickListener = { dialog, i ->
+                    dialog.dismiss()
+                }
+            ).show()
+        }
     }
 
     override fun initView() {
@@ -77,7 +99,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
                 override fun loadMoreItems() {
                     isLoading = true
                     currentPage++
-                    mainViewModel.getSearchData(searchEt.text.toString(), currentPage)
+                    mainViewModel.getMovieList(searchEt.text.toString(), currentPage)
                 }
             })
             itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(movieAdapter))
@@ -88,49 +110,54 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
 
     override fun initEvent() {
         binding.searchIv.setOnClickListener {
-            mainViewModel.getSearchData(binding.searchEt.text.toString(), PAGE_START)
+            onRefresh()
         }
     }
 
     override fun subscribe() {
         with(mainViewModel) {
-            searchUiState.observe(viewLifecycleOwner) {
-                when (it) {
-                    is SearchUi.Loading -> {
+            favoriteMovieListData.observe(viewLifecycleOwner) {
+                getMovieList(binding.searchEt.text.toString(), PAGE_START)
+            }
+            movieListData.observe(viewLifecycleOwner) {
 
+                if (it.isEmpty()) {
+                    setSearchResultVisible(true)
+                    binding.searchSl.isRefreshing = false
+                } else {
+                    setSearchResultVisible(false)
+
+                    if (currentPage != PAGE_START) {
+                        movieAdapter.removeLoading()
                     }
-                    is SearchUi.Success -> {
-                        val movies = mutableListOf<Movie>()
-                        it.resp.totalCnt
-                        movies.addAll(it.resp.movieList)
-
-                        if (currentPage != PAGE_START) {
-                            movieAdapter.removeLoading()
-                        }
-                        movieAdapter.addAll(movies)
-                        binding.searchSl.isRefreshing = false
-                        if (currentPage < totalPage) {
-                            movieAdapter.addLoading()
-                        } else {
-                            isLastPage = true
-                        }
-                        isLoading = false
-
+                    movieAdapter.addAll(it)
+                    binding.searchSl.isRefreshing = false
+                    if (currentPage < mainViewModel.totalPage) {
+                        movieAdapter.addLoading()
+                    } else {
+                        isLastPage = true
                     }
-                    is SearchUi.Fail -> {
-
-                    }
+                    isLoading = false
                 }
             }
         }
     }
 
     override fun onRefresh() {
-        itemCount = 0
         currentPage = PAGE_START
         isLastPage = false
         movieAdapter.clear()
-        mainViewModel.getSearchData(binding.searchEt.text.toString(), PAGE_START)
+        mainViewModel.getFavoriteMovieList()
+    }
+
+    fun setSearchResultVisible(isEmpty: Boolean) {
+        if (isEmpty) {
+            binding.searchRv.visibility = View.GONE
+            binding.searchEmptyResultTv.visibility = View.VISIBLE
+        } else {
+            binding.searchRv.visibility = View.VISIBLE
+            binding.searchEmptyResultTv.visibility = View.GONE
+        }
     }
 
     companion object {

@@ -106,6 +106,11 @@ class MovieAdapter(
         }
     }
 
+    fun updateItem(position: Int) {
+        movieList[position].isFavorite = !movieList[position].isFavorite
+        notifyItemChanged(position)
+    }
+
 
     inner class NormalViewHolder(val binding: ItemMovieBinding): BaseViewHolder<Movie>(binding) {
         override fun bindViews(item: Movie, position: Int, adapterListener: AdapterListener) {
@@ -120,6 +125,7 @@ class MovieAdapter(
                 movieTitleTv.text = item.title
                 movieYearTv.text = item.year
                 movieTypeTv.text = item.type
+                movieFavoriteIv.isSelected = item.isFavorite
                 movieCl.setOnClickListener {
                     if (adapterListener is OnClickMovieListener) {
                         adapterListener.onClick(item, position)
