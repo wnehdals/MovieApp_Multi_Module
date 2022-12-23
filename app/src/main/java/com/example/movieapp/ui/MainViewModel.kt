@@ -1,5 +1,6 @@
 package com.example.movieapp.ui
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.domain.model.Movie
@@ -34,6 +35,7 @@ class MainViewModel @Inject constructor(private val movieRepository: MovieReposi
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
+                _favoriteMovieListData.value!!.clear()
                 _favoriteMovieListData.value = LinkedList(it)
             }, { throwable ->
                 throwable.message?.let {
@@ -91,13 +93,7 @@ class MainViewModel @Inject constructor(private val movieRepository: MovieReposi
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                var idx = 0
-                for(i in _favoriteMovieListData.value!!.indices) {
-                    if (_favoriteMovieListData.value!![i].id == movie.id) {
-                        idx = i
-                        break
-                    }
-                }
+                var idx = _favoriteMovieListData.value!!.indexOf(movie)
                 _favoriteMovieListData.value!!.removeAt(idx)
                 update(position)
             }, { throwable ->

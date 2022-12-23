@@ -105,6 +105,10 @@ class MovieAdapter(
             getItem(0)?.let { remove(it) }
         }
     }
+    fun allClear() {
+        movieList.clear()
+        notifyDataSetChanged()
+    }
 
     fun updateItem(position: Int) {
         movieList[position].isFavorite = !movieList[position].isFavorite

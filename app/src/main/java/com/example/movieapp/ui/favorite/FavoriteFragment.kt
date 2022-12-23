@@ -1,26 +1,87 @@
 package com.example.movieapp.ui.favorite
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import android.util.Log
+import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.ItemTouchHelper
+import com.example.domain.model.Movie
 import com.example.movieapp.R
+import com.example.movieapp.base.BaseFragment
+import com.example.movieapp.databinding.FragmentFavoriteBinding
+import com.example.movieapp.ui.MainActivity
+import com.example.movieapp.ui.MainViewModel
+import com.example.movieapp.ui.search.MovieAdapter
+import com.example.movieapp.view.dialog.DialogUtil
+import com.example.movieapp.view.listener.ItemTouchHelperCallback
+import com.example.movieapp.view.listener.OnClickMovieListener
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class FavoriteFragment : Fragment() {
+class FavoriteFragment : BaseFragment<FragmentFavoriteBinding>() {
+    override val layoutId: Int
+        get() = R.layout.fragment_favorite
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_favorite, container, false)
+    val mainViewModel: MainViewModel by activityViewModels()
+
+    private lateinit var itemTouchHelper: ItemTouchHelper
+
+    private val movieAdapter by lazy {
+        MovieAdapter(requireContext(), object : OnClickMovieListener {
+            override fun onClick(item: Movie, position: Int) {
+                showSelectFavoriteDialog(item, position)
+            }
+        })
     }
+
+    override fun initView() {
+        (requireActivity() as MainActivity).setSupportActionBar(binding.favoriteTb)
+        with(binding) {
+            favoriteRv.setHasFixedSize(true)
+            favoriteRv.adapter = movieAdapter
+            itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(movieAdapter))
+            itemTouchHelper.attachToRecyclerView(favoriteRv)
+        }
+        mainViewModel.getFavoriteMovieList()
+    }
+
+    override fun initEvent() {
+
+    }
+
+    override fun subscribe() {
+        mainViewModel.favoriteMovieListData.observe(viewLifecycleOwner) {
+            movieAdapter.allClear()
+            movieAdapter.addAll(it)
+        }
+    }
+
+    private fun showSelectFavoriteDialog(movie: Movie, position: Int) {
+        DialogUtil.makeSimpleDialog(
+            context = requireContext(),
+            title = getString(R.string.str_guide_delete_favorite),
+            message = "",
+            positiveButtonText = getString(R.string.str_delete_favorite),
+            negativeButtonText = getString(R.string.str_cancel),
+            positiveButtonOnClickListener = { dialog, i ->
+                dialog.dismiss()
+                mainViewModel.removeFavoriteMovie(movie, position) {
+                    movieAdapter.remove(movie)
+                }
+            },
+            negativeButtonOnClickListener = { dialog, i ->
+                dialog.dismiss()
+            }
+        ).show()
+
+    }
+    fun refresh() {
+        movieAdapter.allClear()
+        movieAdapter.addAll(mainViewModel.favoriteMovieListData.value!!)
+    }
+
 
     companion object {
         @JvmStatic
         fun newInstance() = FavoriteFragment()
+        const val TAG = "FavoriteFragment"
     }
 }

@@ -16,7 +16,6 @@ abstract class BaseFragment<T : ViewDataBinding> : Fragment() {
     private lateinit var _binding: T
     val binding: T
         get() = _binding
-    protected lateinit var backButtonCallBack: OnBackPressedCallback
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,7 +44,6 @@ abstract class BaseFragment<T : ViewDataBinding> : Fragment() {
     }
 
     override fun onDetach() {
-        backButtonCallBack.remove()
         super.onDetach()
     }
 

@@ -8,5 +8,5 @@
     <string name="str_cancel">취소</string>
     <string name="str_empty_search_result">검색 결과가 없습니다.</string>
     <string name="str_delete_favorite">즐겨찾기 제거</string>
-
+    <string name="str_my_favorite">내 즐겨찾기</string>
 </resources>
