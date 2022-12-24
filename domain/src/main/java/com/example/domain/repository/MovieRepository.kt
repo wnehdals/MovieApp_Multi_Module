@@ -10,9 +10,9 @@ interface MovieRepository {
 
     fun insertMovie(movie: Movie): Completable
 
-    fun deleteMovie(movie: Movie): Completable
+    fun updateAllMovie(movies: List<Movie>): Completable
 
-    fun loadOneByMovieId(id_: Int): Single<Movie>
+    fun deleteMovie(movie: Movie): Completable
 
     fun loadAllMovie(): Single<MutableList<Movie>>
 }

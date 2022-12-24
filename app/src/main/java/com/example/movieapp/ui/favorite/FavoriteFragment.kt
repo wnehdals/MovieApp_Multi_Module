@@ -1,6 +1,7 @@
 package com.example.movieapp.ui.favorite
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
@@ -14,11 +15,12 @@ import com.example.movieapp.ui.MainViewModel
 import com.example.movieapp.ui.search.MovieAdapter
 import com.example.movieapp.view.dialog.DialogUtil
 import com.example.movieapp.view.listener.ItemTouchHelperCallback
+import com.example.movieapp.view.listener.ItemTouchHelperListener
 import com.example.movieapp.view.listener.OnClickMovieListener
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class FavoriteFragment : BaseFragment<FragmentFavoriteBinding>() {
+class FavoriteFragment : BaseFragment<FragmentFavoriteBinding>(), ItemTouchHelperListener {
     override val layoutId: Int
         get() = R.layout.fragment_favorite
 
@@ -27,7 +29,7 @@ class FavoriteFragment : BaseFragment<FragmentFavoriteBinding>() {
     private lateinit var itemTouchHelper: ItemTouchHelper
 
     private val movieAdapter by lazy {
-        MovieAdapter(requireContext(), object : OnClickMovieListener {
+        FavoriteMovieAdapter(requireContext(), object : OnClickMovieListener {
             override fun onClick(item: Movie, position: Int) {
                 showSelectFavoriteDialog(item, position)
             }
@@ -54,7 +56,7 @@ class FavoriteFragment : BaseFragment<FragmentFavoriteBinding>() {
         with(binding) {
             favoriteRv.setHasFixedSize(true)
             favoriteRv.adapter = movieAdapter
-            itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(movieAdapter))
+            itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(this@FavoriteFragment))
             itemTouchHelper.attachToRecyclerView(favoriteRv)
         }
         mainViewModel.getFavoriteMovieList()
@@ -82,6 +84,19 @@ class FavoriteFragment : BaseFragment<FragmentFavoriteBinding>() {
         }
 
     }
+    override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
+        val item = movieAdapter.getMovieList()[fromPosition]
+        movieAdapter.getMovieList().removeAt(fromPosition)
+        movieAdapter.getMovieList().add(toPosition, item)
+        movieAdapter.getMovieList().forEachIndexed { index, movie ->
+            movie.rank = index
+        }
+        mainViewModel.changeFavoriteMovieRank(movieAdapter.getMovieList(), fromPosition, toPosition) {
+            movieAdapter.notifyItemMoved(fromPosition, toPosition)
+        }
+
+        return true
+    }
 
     private fun showSelectFavoriteDialog(movie: Movie, position: Int) {
         DialogUtil.makeSimpleDialog(
@@ -104,7 +119,6 @@ class FavoriteFragment : BaseFragment<FragmentFavoriteBinding>() {
     }
     fun update() {
         movieAdapter.allClear()
-//        movieAdapter.addAll(mainViewModel.favoriteMovieListData.value!!)
         mainViewModel.getFavoriteMovieList()
     }
 

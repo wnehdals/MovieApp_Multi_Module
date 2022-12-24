@@ -42,15 +42,27 @@ class MovieRepositoryImpl @Inject constructor(
     }
 
     override fun insertMovie(movie: Movie): Completable {
-        return localMovieDataSource.insert(movie.toMovieEntity())
+        return localMovieDataSource.loadAll()
+            .map { it.size }
+            .flatMapCompletable {
+                movie.rank = it
+                localMovieDataSource.insert(movie.toMovieEntity())
+            }
     }
 
     override fun deleteMovie(movie: Movie): Completable {
         return localMovieDataSource.delete(movie.toMovieEntity())
-    }
+            .andThen(loadAllMovie())
+            .map { list ->
+                list.forEachIndexed { index, movie ->
+                    movie.rank = index
+                }
+                list
+            }.flatMapCompletable {
+                updateAllMovie(it)
+            }
 
-    override fun loadOneByMovieId(id_: Int): Single<Movie> {
-        return localMovieDataSource.loadOneByMovieId(id_).map { it.toMovie() }
+
     }
 
     override fun loadAllMovie(): Single<MutableList<Movie>> {
@@ -60,5 +72,10 @@ class MovieRepositoryImpl @Inject constructor(
                     .map { it.toMovie() }
                     .toMutableList()
             }
+    }
+
+    override fun updateAllMovie(movies: List<Movie>): Completable {
+        val movies = movies.asSequence().map { it.toMovieEntity() }.toMutableList()
+        return localMovieDataSource.updateAll(movies)
     }
 }

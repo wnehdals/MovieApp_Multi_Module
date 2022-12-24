@@ -140,6 +140,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
                 }
             }
         }
+        mainViewModel.updateMovieIdList.clear()
     }
 
     fun setSearchResultVisible(isEmpty: Boolean) {

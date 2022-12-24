@@ -8,7 +8,8 @@ fun Movie.toMovieEntity() = MovieEntity(
     title = title,
     year = year,
     type = type,
-    poster = poster
+    poster = poster,
+    rank = rank
 )
 fun MovieEntity.toMovie() = Movie(
     id = id,
@@ -16,5 +17,6 @@ fun MovieEntity.toMovie() = Movie(
     year = year,
     type = type,
     poster = poster,
-    isFavorite = true
+    isFavorite = true,
+    rank = rank
 )

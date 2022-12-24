@@ -1,5 +1,6 @@
 package com.example.movieapp.ui
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.domain.model.Movie
@@ -47,6 +48,7 @@ class MainViewModel @Inject constructor(private val movieRepository: MovieReposi
                 }
             }).addTo(compositeDisposable)
     }
+
     fun getMovieList(keyword: String, page: Int) {
         movieRepository
             .getSearchResp("92e32667", keyword, page)
@@ -62,6 +64,7 @@ class MainViewModel @Inject constructor(private val movieRepository: MovieReposi
 
             }).addTo(compositeDisposable)
     }
+
     fun getTotalPage(totalCnt: Int): Int {
         return if (totalCnt % 10 == 0) {
             (totalCnt / 10)
@@ -69,6 +72,7 @@ class MainViewModel @Inject constructor(private val movieRepository: MovieReposi
             (totalCnt / 10) + 1
         }
     }
+
     fun addFavoriteMovie(movie: Movie, position: Int, update: (Int) -> Unit) {
         movieRepository
             .insertMovie(movie)
@@ -76,7 +80,6 @@ class MainViewModel @Inject constructor(private val movieRepository: MovieReposi
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe { _loadingState.value = true }
             .subscribe({
-                _favoriteMovieListData.value!!.add(movie)
                 update(position)
                 _loadingState.value = false
             }, { throwable ->
@@ -85,6 +88,7 @@ class MainViewModel @Inject constructor(private val movieRepository: MovieReposi
                 }
             }).addTo(compositeDisposable)
     }
+
     fun removeFavoriteMovie(movie: Movie, position: Int, tabId: Int, update: (Int) -> Unit) {
         movieRepository
             .deleteMovie(movie)
@@ -92,13 +96,35 @@ class MainViewModel @Inject constructor(private val movieRepository: MovieReposi
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe { _loadingState.value = true }
             .subscribe({
-                var idx = _favoriteMovieListData.value!!.indexOf(movie)
-                _favoriteMovieListData.value!!.removeAt(idx)
                 if (tabId == R.id.bottom_nav_favorite) {
                     updateMovieIdList.add(movie.id)
                 }
                 update(position)
                 _loadingState.value = false
+            }, { throwable ->
+                throwable.message?.let {
+                    _errMsg.value = it
+                }
+            }).addTo(compositeDisposable)
+    }
+
+    fun changeFavoriteMovieRank(
+        favoriteMovieList: LinkedList<Movie>,
+        fromPosition: Int,
+        toPosition: Int,
+        onComplete: () -> Unit
+    ) {
+        var subList: MutableList<Movie> = mutableListOf()
+        if (fromPosition > toPosition) {
+            subList = favoriteMovieList.subList(toPosition, fromPosition + 1)
+        } else {
+            subList = favoriteMovieList.subList(fromPosition, toPosition + 1)
+        }
+        movieRepository.updateAllMovie(subList)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                onComplete()
             }, { throwable ->
                 throwable.message?.let {
                     _errMsg.value = it
