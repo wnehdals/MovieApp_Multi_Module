@@ -18,12 +18,23 @@ class MovieRepositoryImpl @Inject constructor(
     override fun getSearchResp(apiKey: String, keyword: String, page: Int): Single<SearchResp> {
         return Single.create { emitter ->
             remoteMovieDataSource.getSearchResp(apiKey, keyword, page)
-                .subscribe({
-                    if (it.response) {
-                        emitter.onSuccess(it)
+                .zipWith(loadAllMovie()) { searchResp, favorites ->
+                    if (searchResp.response) {
+                        for (movie in searchResp.searches) {
+                            for (favorite in favorites) {
+                                if (movie.id == favorite.id) {
+                                    movie.isFavorite = true
+                                    break
+                                }
+                            }
+                        }
+                        searchResp
                     } else {
-                        emitter.onSuccess(SearchResp.EMPTY)
+                        SearchResp.EMPTY
                     }
+                }
+                .subscribe({
+                    emitter.onSuccess(it)
                 }, {
                     emitter.onError(Throwable(message = "network error"))
                 })

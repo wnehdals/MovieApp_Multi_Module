@@ -20,7 +20,7 @@ class MovieAdapter(
     private val adapterListener: AdapterListener
     ): RecyclerView.Adapter<BaseViewHolder<Movie>>(), ItemTouchHelperListener {
 
-    val movieList = mutableListOf<Movie>()
+    private val movieList = mutableListOf<Movie>()
 
     private val VIEW_TYPE_LOADING = 0
     private val VIEW_TYPE_NORMAL = 1
@@ -113,6 +113,10 @@ class MovieAdapter(
     fun updateItem(position: Int) {
         movieList[position].isFavorite = !movieList[position].isFavorite
         notifyItemChanged(position)
+    }
+
+    fun getMovieList(): MutableList<Movie> {
+        return movieList
     }
 
 

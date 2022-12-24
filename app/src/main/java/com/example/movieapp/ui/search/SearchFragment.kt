@@ -1,7 +1,9 @@
 package com.example.movieapp.ui.search
 
-import android.util.Log
+import android.content.Context
 import android.view.View
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -12,7 +14,6 @@ import com.example.movieapp.base.BaseFragment
 import com.example.movieapp.databinding.FragmentSearchBinding
 import com.example.movieapp.ui.MainViewModel
 import com.example.movieapp.view.dialog.DialogUtil
-import com.example.movieapp.view.listener.ItemTouchHelperCallback
 import com.example.movieapp.view.listener.OnClickMovieListener
 import com.example.movieapp.view.listener.PaginationScrollListener
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,7 +37,6 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
             }
         })
     }
-
 
     override fun initView() {
         with(binding) {
@@ -80,12 +80,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
 
     override fun subscribe() {
         with(mainViewModel) {
-            favoriteMovieListData.observe(viewLifecycleOwner) {
-                Log.e("jdm_tag", "favorite")
-                getMovieList(binding.searchEt.text.toString(), PAGE_START)
-            }
             movieListData.observe(viewLifecycleOwner) {
-                Log.e("jdm_tag", "movie")
                 if (it.isEmpty()) {
                     setSearchResultVisible(true)
                     binding.searchSl.isRefreshing = false
@@ -105,6 +100,15 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
                     isLoading = false
                 }
             }
+            loadingState.observe(viewLifecycleOwner) {
+                if (it)
+                    showProgressDialog()
+                else
+                    dismissProgressDialog()
+            }
+            errMsg.observe(viewLifecycleOwner) {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -112,7 +116,17 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
         currentPage = PAGE_START
         isLastPage = false
         movieAdapter.clear()
-        mainViewModel.getFavoriteMovieList()
+        mainViewModel.getMovieList(binding.searchEt.text.toString(), PAGE_START)
+    }
+
+    fun update() {
+        mainViewModel.updateMovieIdList.forEach { id ->
+            movieAdapter.getMovieList().forEachIndexed { index, movie ->
+                if (id == movie.id) {
+                    movieAdapter.updateItem(index)
+                }
+            }
+        }
     }
 
     fun setSearchResultVisible(isEmpty: Boolean) {
@@ -135,7 +149,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
                 negativeButtonText = getString(R.string.str_cancel),
                 positiveButtonOnClickListener = { dialog, i ->
                     dialog.dismiss()
-                    mainViewModel.removeFavoriteMovie(movie, position) {
+                    mainViewModel.removeFavoriteMovie(movie, position, R.id.bottom_nav_search) {
                         movieAdapter.updateItem(it)
                     }
                 },

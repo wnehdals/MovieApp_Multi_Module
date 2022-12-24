@@ -1,6 +1,7 @@
 package com.example.movieapp.ui.favorite
 
 import android.util.Log
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.example.domain.model.Movie
@@ -48,10 +49,22 @@ class FavoriteFragment : BaseFragment<FragmentFavoriteBinding>() {
     }
 
     override fun subscribe() {
-        mainViewModel.favoriteMovieListData.observe(viewLifecycleOwner) {
-            movieAdapter.allClear()
-            movieAdapter.addAll(it)
+        with(mainViewModel) {
+            favoriteMovieListData.observe(viewLifecycleOwner) {
+                movieAdapter.allClear()
+                movieAdapter.addAll(it)
+            }
+            loadingState.observe(viewLifecycleOwner) {
+                if (it)
+                    showProgressDialog()
+                else
+                    dismissProgressDialog()
+            }
+            errMsg.observe(viewLifecycleOwner) {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+            }
         }
+
     }
 
     private fun showSelectFavoriteDialog(movie: Movie, position: Int) {
@@ -63,7 +76,7 @@ class FavoriteFragment : BaseFragment<FragmentFavoriteBinding>() {
             negativeButtonText = getString(R.string.str_cancel),
             positiveButtonOnClickListener = { dialog, i ->
                 dialog.dismiss()
-                mainViewModel.removeFavoriteMovie(movie, position) {
+                mainViewModel.removeFavoriteMovie(movie, position, R.id.bottom_nav_favorite) {
                     movieAdapter.remove(movie)
                 }
             },
@@ -73,9 +86,10 @@ class FavoriteFragment : BaseFragment<FragmentFavoriteBinding>() {
         ).show()
 
     }
-    fun refresh() {
+    fun update() {
         movieAdapter.allClear()
-        movieAdapter.addAll(mainViewModel.favoriteMovieListData.value!!)
+//        movieAdapter.addAll(mainViewModel.favoriteMovieListData.value!!)
+        mainViewModel.getFavoriteMovieList()
     }
 
 

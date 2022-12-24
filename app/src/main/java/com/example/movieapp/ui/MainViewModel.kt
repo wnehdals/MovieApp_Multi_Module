@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.domain.model.Movie
 import com.example.domain.repository.MovieRepository
+import com.example.movieapp.R
 import com.example.movieapp.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -22,12 +23,16 @@ class MainViewModel @Inject constructor(private val movieRepository: MovieReposi
     private val _favoriteMovieListData = MutableLiveData<LinkedList<Movie>>(LinkedList())
     val favoriteMovieListData: LiveData<LinkedList<Movie>> get() = _favoriteMovieListData
 
+    private val _loadingState = MutableLiveData<Boolean>()
+    val loadingState: LiveData<Boolean> get() = _loadingState
+
 
     private val _errMsg = MutableLiveData<String>()
     val errMsg: LiveData<String> get() = _errMsg
 
 
     var totalPage = 0
+    val updateMovieIdList = mutableListOf<String>()    //즐겨찾기 탭에서 즐겨찾기 취소된 영화 id를 모은 리스트
 
     fun getFavoriteMovieList() {
         movieRepository
@@ -50,14 +55,6 @@ class MainViewModel @Inject constructor(private val movieRepository: MovieReposi
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 totalPage = getTotalPage(it.totalCnt)
-                for(movie in it.searches) {
-                    for(favorite in _favoriteMovieListData.value!!) {
-                        if (movie.id == favorite.id) {
-                            movie.isFavorite = true
-                            break
-                        }
-                    }
-                }
                 _movieListData.value = it.searches
             }, { throwable ->
                 throwable.message?.let {
@@ -78,24 +75,31 @@ class MainViewModel @Inject constructor(private val movieRepository: MovieReposi
             .insertMovie(movie)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe { _loadingState.value = true }
             .subscribe({
                 _favoriteMovieListData.value!!.add(movie)
                 update(position)
+                _loadingState.value = false
             }, { throwable ->
                 throwable.message?.let {
                     _errMsg.value = it
                 }
             }).addTo(compositeDisposable)
     }
-    fun removeFavoriteMovie(movie: Movie, position: Int, update: (Int) -> Unit) {
+    fun removeFavoriteMovie(movie: Movie, position: Int, tabId: Int, update: (Int) -> Unit) {
         movieRepository
             .deleteMovie(movie)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe { _loadingState.value = true }
             .subscribe({
                 var idx = _favoriteMovieListData.value!!.indexOf(movie)
                 _favoriteMovieListData.value!!.removeAt(idx)
+                if (tabId == R.id.bottom_nav_favorite) {
+                    updateMovieIdList.add(movie.id)
+                }
                 update(position)
+                _loadingState.value = false
             }, { throwable ->
                 throwable.message?.let {
                     _errMsg.value = it

@@ -47,7 +47,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(){
         findFragment?.let {
             supportFragmentManager.beginTransaction().show(it).commitAllowingStateLoss()
             when (it) {
-                is FavoriteFragment -> it.refresh()
+                is SearchFragment -> it.update()
+                is FavoriteFragment -> it.update()
                 else -> return
             }
         }?: kotlin.run {
