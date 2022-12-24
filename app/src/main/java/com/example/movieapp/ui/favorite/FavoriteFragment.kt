@@ -1,7 +1,8 @@
 package com.example.movieapp.ui.favorite
 
-import android.util.Log
+import android.content.Context
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.example.domain.model.Movie
@@ -31,6 +32,21 @@ class FavoriteFragment : BaseFragment<FragmentFavoriteBinding>() {
                 showSelectFavoriteDialog(item, position)
             }
         })
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        onBackPressedCallBack = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (System.currentTimeMillis() - backPressedTime < 2000) {
+                    requireActivity().finish()
+                } else {
+                    showBackpressedToastMessage()
+                    backPressedTime = System.currentTimeMillis()
+                }
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallBack!!)
     }
 
     override fun initView() {
@@ -90,6 +106,18 @@ class FavoriteFragment : BaseFragment<FragmentFavoriteBinding>() {
         movieAdapter.allClear()
 //        movieAdapter.addAll(mainViewModel.favoriteMovieListData.value!!)
         mainViewModel.getFavoriteMovieList()
+    }
+
+    fun setDispatcher() {
+        onBackPressedCallBack?.let {
+            requireActivity().onBackPressedDispatcher.addCallback(this, it)
+        }
+    }
+
+    override fun onDetach() {
+        onBackPressedCallBack?.remove()
+        onBackPressedCallBack = null
+        super.onDetach()
     }
 
 

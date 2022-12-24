@@ -1,6 +1,5 @@
 package com.example.movieapp.ui
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.domain.model.Movie

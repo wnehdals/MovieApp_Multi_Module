@@ -1,15 +1,11 @@
 package com.example.movieapp.ui
 
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.setupWithNavController
 import com.example.movieapp.R
 import com.example.movieapp.base.BaseActivity
 import com.example.movieapp.databinding.ActivityMainBinding
 import com.example.movieapp.ui.favorite.FavoriteFragment
 import com.example.movieapp.ui.search.SearchFragment
-import com.google.android.material.bottomnavigation.BottomNavigationItemView
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -47,8 +43,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(){
         findFragment?.let {
             supportFragmentManager.beginTransaction().show(it).commitAllowingStateLoss()
             when (it) {
-                is SearchFragment -> it.update()
-                is FavoriteFragment -> it.update()
+                is SearchFragment ->  {
+                    it.setDispatcher()
+                    it.update()
+                }
+                is FavoriteFragment -> {
+                    it.setDispatcher()
+                    it.update()
+                }
                 else -> return
             }
         }?: kotlin.run {

@@ -12,7 +12,6 @@ import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import com.example.movieapp.R
 import com.example.movieapp.view.dialog.ProgressDialog
-import kotlinx.coroutines.flow.callbackFlow
 
 abstract class BaseFragment<T : ViewDataBinding> : Fragment() {
     @get:LayoutRes
@@ -22,6 +21,9 @@ abstract class BaseFragment<T : ViewDataBinding> : Fragment() {
         get() = _binding
 
     private var progressDialog: ProgressDialog? = null
+
+    protected var onBackPressedCallBack: OnBackPressedCallback? = null
+    protected var backPressedTime: Long = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -66,5 +68,8 @@ abstract class BaseFragment<T : ViewDataBinding> : Fragment() {
     fun dismissProgressDialog() {
         progressDialog?.dismiss()
         progressDialog = null
+    }
+    protected fun showBackpressedToastMessage(message: String = getString(R.string.str_finish_for_more_click)) {
+        Toast.makeText(requireContext(),message, Toast.LENGTH_SHORT).show()
     }
 }
