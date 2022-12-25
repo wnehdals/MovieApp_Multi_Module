@@ -1,6 +1,5 @@
 package com.example.movieapp.ui.search
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -13,7 +12,6 @@ import com.example.movieapp.base.BaseViewHolder
 import com.example.movieapp.databinding.ItemLoadingBinding
 import com.example.movieapp.databinding.ItemMovieBinding
 import com.example.movieapp.view.listener.AdapterListener
-import com.example.movieapp.view.listener.ItemTouchHelperListener
 import com.example.movieapp.view.listener.OnClickMovieListener
 
 class MovieAdapter(
@@ -107,7 +105,9 @@ class MovieAdapter(
         return movieList
     }
 
-
+    /**
+     * Movie 정보를 보여주는 ViewHolder
+     */
     inner class NormalViewHolder(val binding: ItemMovieBinding): BaseViewHolder<Movie>(binding) {
         override fun bindViews(item: Movie, position: Int, adapterListener: AdapterListener) {
             with(binding) {
@@ -131,6 +131,10 @@ class MovieAdapter(
         }
 
     }
+
+    /**
+     * Loading을 보여주는 ViewHolder
+     */
     inner class LoadingViewHolder(val binding: ItemLoadingBinding): BaseViewHolder<Movie>(binding) {
         override fun bindViews(item: Movie, position: Int, adapterListener: AdapterListener) {
 

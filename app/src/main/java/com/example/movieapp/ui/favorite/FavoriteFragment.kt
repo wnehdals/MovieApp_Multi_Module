@@ -1,7 +1,6 @@
 package com.example.movieapp.ui.favorite
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
@@ -12,7 +11,6 @@ import com.example.movieapp.base.BaseFragment
 import com.example.movieapp.databinding.FragmentFavoriteBinding
 import com.example.movieapp.ui.MainActivity
 import com.example.movieapp.ui.MainViewModel
-import com.example.movieapp.ui.search.MovieAdapter
 import com.example.movieapp.view.dialog.DialogUtil
 import com.example.movieapp.view.listener.ItemTouchHelperCallback
 import com.example.movieapp.view.listener.ItemTouchHelperListener
@@ -84,10 +82,17 @@ class FavoriteFragment : BaseFragment<FragmentFavoriteBinding>(), ItemTouchHelpe
         }
 
     }
+
+    /**
+     * RecyclerView Item의 Drag&Drop을 감지하는 함수
+     * @param fromPosition Drag가 시작된 Position
+     * @param toPosition Drop된 Position
+     */
     override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
         val item = movieAdapter.getMovieList()[fromPosition]
         movieAdapter.getMovieList().removeAt(fromPosition)
         movieAdapter.getMovieList().add(toPosition, item)
+        /* 순서 갱신 */
         movieAdapter.getMovieList().forEachIndexed { index, movie ->
             movie.rank = index
         }
@@ -98,6 +103,11 @@ class FavoriteFragment : BaseFragment<FragmentFavoriteBinding>(), ItemTouchHelpe
         return true
     }
 
+    /**
+     * 즐겨찾기 제거 여부를 선택하는 다이얼로그를 보여주는 함수
+     * @param movie 즐겨찾기 목록에서 선택한 Movie
+     * @param position 즐겨찾기에서 선택한 Movie의 Position
+     */
     private fun showSelectFavoriteDialog(movie: Movie, position: Int) {
         DialogUtil.makeSimpleDialog(
             context = requireContext(),
@@ -117,11 +127,18 @@ class FavoriteFragment : BaseFragment<FragmentFavoriteBinding>(), ItemTouchHelpe
         ).show()
 
     }
+
+    /**
+     * 즐겨찾기된 목록을 갱신하는 함수
+     */
     fun update() {
         movieAdapter.allClear()
         mainViewModel.getFavoriteMovieList()
     }
 
+    /**
+     * onBackPressedCallBack을 설정하는 함수
+     */
     fun setDispatcher() {
         onBackPressedCallBack?.let {
             requireActivity().onBackPressedDispatcher.addCallback(this, it)

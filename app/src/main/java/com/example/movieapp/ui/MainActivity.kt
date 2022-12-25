@@ -35,6 +35,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(){
 
     override fun initEvent() {
     }
+
+    /**
+     * 바텀네비게이션 버튼 클릭에 따른 Fragment를 보여주는 함수
+     * @param fragment 보여줄 fragment
+     * @param tag 보여줄 fragment의 tag
+     */
     private fun showFragment(fragment: Fragment, tag: String) {
         val findFragment = supportFragmentManager.findFragmentByTag(tag)
         supportFragmentManager.fragments.forEach { fm ->

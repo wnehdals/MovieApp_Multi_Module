@@ -1,6 +1,5 @@
 package com.example.movieapp.ui.favorite
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -10,12 +9,10 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.domain.model.Movie
 import com.example.movieapp.R
 import com.example.movieapp.base.BaseViewHolder
-import com.example.movieapp.databinding.ItemLoadingBinding
 import com.example.movieapp.databinding.ItemMovieBinding
 import com.example.movieapp.view.listener.AdapterListener
-import com.example.movieapp.view.listener.ItemTouchHelperListener
 import com.example.movieapp.view.listener.OnClickMovieListener
-import java.util.LinkedList
+import java.util.*
 
 class FavoriteMovieAdapter(
     private val context: Context,

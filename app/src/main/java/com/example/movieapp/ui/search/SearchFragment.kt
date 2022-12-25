@@ -64,8 +64,8 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
             val layoutManager = GridLayoutManager(requireContext(), 2)
             layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
-                    return if (movieAdapter.getItemViewType(position) == 0) 2
-                    else 1
+                    return if (movieAdapter.getItemViewType(position) == 0) 2   // Movie 정보를 보여줄 경우 spancount를 2로 설정
+                    else 1                                                      // 로딩일 경우 spancount를 1로 설정
                 }
             }
             searchRv.layoutManager = layoutManager
@@ -85,8 +85,6 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
                     mainViewModel.getMovieList(searchEt.text.toString(), currentPage)
                 }
             })
-            //itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(movieAdapter))
-            //itemTouchHelper.attachToRecyclerView(searchRv)
         }
     }
 
@@ -144,13 +142,21 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
         }
     }
 
+    /**
+     * 검색 목록을 갱신하는 함수
+     */
     override fun onRefresh() {
         currentPage = PAGE_START
         isLastPage = false
         movieAdapter.clear()
+        mainViewModel.searchResultClear()
         mainViewModel.getMovieList(binding.searchEt.text.toString(), PAGE_START)
     }
 
+    /**
+     * 즐겨찾기 탭에서 삭제된 Movie가 있고 해당 Movie가 검색 목록에 있다면
+     * 즐겨찾기 여부를 보여주는 UI를 변경하는 함수
+     */
     fun update() {
         mainViewModel.updateMovieIdList.forEach { id ->
             movieAdapter.getMovieList().forEachIndexed { index, movie ->
@@ -162,6 +168,9 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
         mainViewModel.updateMovieIdList.clear()
     }
 
+    /**
+     * @param isEmpty 검색결과가 비었는지 여부를 의미하는 변수
+     */
     fun setSearchResultVisible(isEmpty: Boolean) {
         if (isEmpty) {
             binding.searchRv.visibility = View.GONE
@@ -172,8 +181,13 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
         }
     }
 
+    /**
+     * 즐겨찾기 추가/제거 여부를 선택하는 다이얼로그를 보여주는 함수
+     * @param movie 검색목록에서 선택한 Movie
+     * @param position 검색목록에서 선택한 Moviedml position
+     */
     private fun showSelectFavoriteDialog(movie: Movie, position: Int) {
-        if (movie.isFavorite) {
+        if (movie.isFavorite) {                                             // 즐겨찾기가 되어있는 경우
             DialogUtil.makeSimpleDialog(
                 context = requireContext(),
                 title = getString(R.string.str_guide_delete_favorite),
@@ -190,7 +204,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
                     dialog.dismiss()
                 }
             ).show()
-        } else {
+        } else {                                                            // 즐겨찾기가 되어있지 않은 경우
             DialogUtil.makeSimpleDialog(
                 context = requireContext(),
                 title = getString(R.string.str_guide_add_favorite),
@@ -209,7 +223,9 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
             ).show()
         }
     }
-
+    /**
+     * onBackPressedCallBack을 설정하는 함수
+     */
     fun setDispatcher() {
         onBackPressedCallBack?.let {
             requireActivity().onBackPressedDispatcher.addCallback(this, it)
@@ -221,7 +237,9 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
         onBackPressedCallBack = null
         super.onDestroy()
     }
-
+    /**
+     * keyboard를 숨기는 함수
+     */
     fun hideKeyboard() {
         val imm = (requireActivity() as MainActivity).getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(binding.searchEt.windowToken, 0)
