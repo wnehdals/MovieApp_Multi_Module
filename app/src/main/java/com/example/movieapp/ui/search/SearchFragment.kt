@@ -1,9 +1,13 @@
 package com.example.movieapp.ui.search
 
 import android.content.Context
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -11,6 +15,7 @@ import com.example.domain.model.Movie
 import com.example.movieapp.R
 import com.example.movieapp.base.BaseFragment
 import com.example.movieapp.databinding.FragmentSearchBinding
+import com.example.movieapp.ui.MainActivity
 import com.example.movieapp.ui.MainViewModel
 import com.example.movieapp.view.dialog.DialogUtil
 import com.example.movieapp.view.listener.OnClickMovieListener
@@ -53,6 +58,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
 
     override fun initView() {
         with(binding) {
+            (requireActivity() as MainActivity).setSupportActionBar(binding.searchTb)
             searchSl.setOnRefreshListener(this@SearchFragment)
             searchRv.setHasFixedSize(true)
             val layoutManager = GridLayoutManager(requireContext(), 2)
@@ -86,9 +92,22 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
 
 
     override fun initEvent() {
-        binding.searchIv.setOnClickListener {
-            onRefresh()
+        with(binding) {
+            searchIv.setOnClickListener {
+                onRefresh()
+                hideKeyboard()
+            }
+            searchEt.setOnEditorActionListener { textView, actionId, keyEvent ->
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    onRefresh()
+                    hideKeyboard()
+                    return@setOnEditorActionListener true
+                }
+                return@setOnEditorActionListener false
+            }
         }
+
+
     }
 
     override fun subscribe() {
@@ -203,6 +222,10 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
         super.onDestroy()
     }
 
+    fun hideKeyboard() {
+        val imm = (requireActivity() as MainActivity).getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.searchEt.windowToken, 0)
+    }
     companion object {
         @JvmStatic
         fun newInstance() = SearchFragment()
