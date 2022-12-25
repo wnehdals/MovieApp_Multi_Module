@@ -1,4 +1,4 @@
-package com.example.movieapp.ui.search
+package com.example.movieapp.ui.favorite
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -15,24 +15,18 @@ import com.example.movieapp.databinding.ItemMovieBinding
 import com.example.movieapp.view.listener.AdapterListener
 import com.example.movieapp.view.listener.ItemTouchHelperListener
 import com.example.movieapp.view.listener.OnClickMovieListener
+import java.util.LinkedList
 
-class MovieAdapter(
+class FavoriteMovieAdapter(
     private val context: Context,
     private val adapterListener: AdapterListener
     ): RecyclerView.Adapter<BaseViewHolder<Movie>>() {
 
-    private val movieList = mutableListOf<Movie>()
+    private val movieList = LinkedList<Movie>()
 
-    private val VIEW_TYPE_LOADING = 0
-    private val VIEW_TYPE_NORMAL = 1
-    private var isLoaderVisible = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<Movie> {
-        return when(viewType) {
-            VIEW_TYPE_NORMAL -> NormalViewHolder(ItemMovieBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-            VIEW_TYPE_LOADING -> LoadingViewHolder(ItemLoadingBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-            else -> NormalViewHolder(ItemMovieBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-        }
+        return NormalViewHolder(ItemMovieBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder<Movie>, position: Int) {
@@ -40,71 +34,27 @@ class MovieAdapter(
         holder.bindViews(item, position, adapterListener)
     }
 
-    override fun getItemViewType(position: Int): Int {
-        return if (isLoaderVisible) {
-            if (position == movieList.size-1) VIEW_TYPE_LOADING
-            else VIEW_TYPE_NORMAL
-        } else {
-            VIEW_TYPE_NORMAL
-        }
-    }
-
     override fun getItemCount(): Int {
         return movieList.size
     }
-
-
-
-    fun addAll(data: MutableList<Movie>) {
-        data.forEach { add(it) }
+    fun addAll(data: LinkedList<Movie>) {
+        movieList.addAll(data)
+        notifyDataSetChanged()
     }
-    fun add(data: Movie) {
-        movieList.add(data)
-        notifyItemInserted(movieList.size-1)
+    fun allClear() {
+        movieList.clear()
+        notifyDataSetChanged()
+    }
+
+    fun getMovieList(): LinkedList<Movie> {
+        return movieList
     }
     fun remove(data: Movie) {
         var position = movieList.indexOf(data)
-
         if (position > -1) {
             movieList.removeAt(position)
             notifyItemRemoved(position)
         }
-    }
-    fun addLoading() {
-        isLoaderVisible = true
-        add(Movie("","","","","",false,0))
-    }
-    fun getItem(position: Int): Movie? {
-        if (position < 0)
-            return null
-        else if (position > movieList.size-1)
-            return null
-        else
-            return movieList[position]
-    }
-    fun removeLoading() {
-        isLoaderVisible = false
-        var position = movieList.size-1
-        var item = getItem(position)
-
-        if (item != null) {
-            movieList.removeAt(position)
-            notifyItemRemoved(position)
-        }
-    }
-    fun clear() {
-        while (itemCount > 0) {
-            getItem(0)?.let { remove(it) }
-        }
-    }
-
-    fun updateItem(position: Int) {
-        movieList[position].isFavorite = !movieList[position].isFavorite
-        notifyItemChanged(position)
-    }
-
-    fun getMovieList(): MutableList<Movie> {
-        return movieList
     }
 
 
@@ -130,10 +80,5 @@ class MovieAdapter(
             }
         }
 
-    }
-    inner class LoadingViewHolder(val binding: ItemLoadingBinding): BaseViewHolder<Movie>(binding) {
-        override fun bindViews(item: Movie, position: Int, adapterListener: AdapterListener) {
-
-        }
     }
 }

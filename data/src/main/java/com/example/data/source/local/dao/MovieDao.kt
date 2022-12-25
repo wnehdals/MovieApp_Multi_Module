@@ -10,18 +10,12 @@ interface MovieDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(movieEntity: MovieEntity): Completable
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(movieEntities: List<MovieEntity>): Completable
-
     @Update
-    fun update(movieEntity: MovieEntity): Completable
+    fun updateAll(movieEntities: List<MovieEntity>): Completable
 
     @Delete
     fun delete(movieEntity: MovieEntity): Completable
 
-    @Query("SELECT * FROM MOVIE WHERE id = :id_" )
-    fun loadOneByMovieId(id_: Int): Single<MovieEntity>
-
-    @Query("SELECT * FROM MOVIE" )
+    @Query("SELECT * FROM MOVIE ORDER BY RANK ASC" )
     fun loadAll(): Single<List<MovieEntity>>
 }

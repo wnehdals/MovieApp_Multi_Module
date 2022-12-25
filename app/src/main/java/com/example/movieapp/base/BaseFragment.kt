@@ -4,11 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
+import com.example.movieapp.R
+import com.example.movieapp.view.dialog.ProgressDialog
 
 abstract class BaseFragment<T : ViewDataBinding> : Fragment() {
     @get:LayoutRes
@@ -16,7 +19,11 @@ abstract class BaseFragment<T : ViewDataBinding> : Fragment() {
     private lateinit var _binding: T
     val binding: T
         get() = _binding
-    protected lateinit var backButtonCallBack: OnBackPressedCallback
+
+    private var progressDialog: ProgressDialog? = null
+
+    protected var onBackPressedCallBack: OnBackPressedCallback? = null
+    protected var backPressedTime: Long = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,11 +52,24 @@ abstract class BaseFragment<T : ViewDataBinding> : Fragment() {
     }
 
     override fun onDetach() {
-        backButtonCallBack.remove()
         super.onDetach()
     }
 
     abstract fun initView()
     abstract fun initEvent()
     abstract fun subscribe()
+
+    fun showProgressDialog() {
+        progressDialog?.dismiss()
+        progressDialog = ProgressDialog(requireContext(), getString(R.string.str_loading))
+        progressDialog?.show()
+    }
+
+    fun dismissProgressDialog() {
+        progressDialog?.dismiss()
+        progressDialog = null
+    }
+    protected fun showBackpressedToastMessage(message: String = getString(R.string.str_finish_for_more_click)) {
+        Toast.makeText(requireContext(),message, Toast.LENGTH_SHORT).show()
+    }
 }

@@ -13,5 +13,6 @@ data class Movie(
     val type: String,
     @SerializedName("Poster")
     val poster: String,
-    var isFavorite: Boolean = false
+    var isFavorite: Boolean = false,
+    var rank: Int = 0
 )

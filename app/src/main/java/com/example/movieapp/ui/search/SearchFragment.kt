@@ -1,9 +1,11 @@
 package com.example.movieapp.ui.search
 
+import android.content.Context
 import android.view.View
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.domain.model.Movie
 import com.example.movieapp.R
@@ -11,7 +13,6 @@ import com.example.movieapp.base.BaseFragment
 import com.example.movieapp.databinding.FragmentSearchBinding
 import com.example.movieapp.ui.MainViewModel
 import com.example.movieapp.view.dialog.DialogUtil
-import com.example.movieapp.view.listener.ItemTouchHelperCallback
 import com.example.movieapp.view.listener.OnClickMovieListener
 import com.example.movieapp.view.listener.PaginationScrollListener
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,7 +22,6 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
     override val layoutId: Int
         get() = R.layout.fragment_search
     val mainViewModel: MainViewModel by activityViewModels()
-    private lateinit var itemTouchHelper: ItemTouchHelper
     private val PAGE_START = 1
     private var currentPage = PAGE_START
 
@@ -36,42 +36,19 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
         })
     }
 
-    private fun showSelectFavoriteDialog(movie: Movie, position: Int) {
-        if (movie.isFavorite) {
-            DialogUtil.makeSimpleDialog(
-                context = requireContext(),
-                title = getString(R.string.str_guide_delete_favorite),
-                message = "",
-                positiveButtonText = getString(R.string.str_delete_favorite),
-                negativeButtonText = getString(R.string.str_cancel),
-                positiveButtonOnClickListener = { dialog, i ->
-                    dialog.dismiss()
-                    mainViewModel.removeFavoriteMovie(movie, position) {
-                        movieAdapter.updateItem(it)
-                    }
-                },
-                negativeButtonOnClickListener = { dialog, i ->
-                    dialog.dismiss()
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        onBackPressedCallBack = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (System.currentTimeMillis() - backPressedTime < 2000) {
+                    requireActivity().finish()
+                } else {
+                    showBackpressedToastMessage()
+                    backPressedTime = System.currentTimeMillis()
                 }
-            ).show()
-        } else {
-            DialogUtil.makeSimpleDialog(
-                context = requireContext(),
-                title = getString(R.string.str_guide_add_favorite),
-                message = "",
-                positiveButtonText = getString(R.string.str_favorite),
-                negativeButtonText = getString(R.string.str_cancel),
-                positiveButtonOnClickListener = { dialog, i ->
-                    dialog.dismiss()
-                    mainViewModel.addFavoriteMovie(movie, position) {
-                        movieAdapter.updateItem(position)
-                    }
-                },
-                negativeButtonOnClickListener = { dialog, i ->
-                    dialog.dismiss()
-                }
-            ).show()
+            }
         }
+        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallBack!!)
     }
 
     override fun initView() {
@@ -102,8 +79,8 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
                     mainViewModel.getMovieList(searchEt.text.toString(), currentPage)
                 }
             })
-            itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(movieAdapter))
-            itemTouchHelper.attachToRecyclerView(searchRv)
+            //itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(movieAdapter))
+            //itemTouchHelper.attachToRecyclerView(searchRv)
         }
     }
 
@@ -116,11 +93,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
 
     override fun subscribe() {
         with(mainViewModel) {
-            favoriteMovieListData.observe(viewLifecycleOwner) {
-                getMovieList(binding.searchEt.text.toString(), PAGE_START)
-            }
             movieListData.observe(viewLifecycleOwner) {
-
                 if (it.isEmpty()) {
                     setSearchResultVisible(true)
                     binding.searchSl.isRefreshing = false
@@ -140,6 +113,15 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
                     isLoading = false
                 }
             }
+            loadingState.observe(viewLifecycleOwner) {
+                if (it)
+                    showProgressDialog()
+                else
+                    dismissProgressDialog()
+            }
+            errMsg.observe(viewLifecycleOwner) {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -147,7 +129,18 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
         currentPage = PAGE_START
         isLastPage = false
         movieAdapter.clear()
-        mainViewModel.getFavoriteMovieList()
+        mainViewModel.getMovieList(binding.searchEt.text.toString(), PAGE_START)
+    }
+
+    fun update() {
+        mainViewModel.updateMovieIdList.forEach { id ->
+            movieAdapter.getMovieList().forEachIndexed { index, movie ->
+                if (id == movie.id) {
+                    movieAdapter.updateItem(index)
+                }
+            }
+        }
+        mainViewModel.updateMovieIdList.clear()
     }
 
     fun setSearchResultVisible(isEmpty: Boolean) {
@@ -160,8 +153,59 @@ class SearchFragment : BaseFragment<FragmentSearchBinding>(), SwipeRefreshLayout
         }
     }
 
+    private fun showSelectFavoriteDialog(movie: Movie, position: Int) {
+        if (movie.isFavorite) {
+            DialogUtil.makeSimpleDialog(
+                context = requireContext(),
+                title = getString(R.string.str_guide_delete_favorite),
+                message = "",
+                positiveButtonText = getString(R.string.str_delete_favorite),
+                negativeButtonText = getString(R.string.str_cancel),
+                positiveButtonOnClickListener = { dialog, i ->
+                    dialog.dismiss()
+                    mainViewModel.removeFavoriteMovie(movie, position, R.id.bottom_nav_search) {
+                        movieAdapter.updateItem(it)
+                    }
+                },
+                negativeButtonOnClickListener = { dialog, i ->
+                    dialog.dismiss()
+                }
+            ).show()
+        } else {
+            DialogUtil.makeSimpleDialog(
+                context = requireContext(),
+                title = getString(R.string.str_guide_add_favorite),
+                message = "",
+                positiveButtonText = getString(R.string.str_favorite),
+                negativeButtonText = getString(R.string.str_cancel),
+                positiveButtonOnClickListener = { dialog, i ->
+                    dialog.dismiss()
+                    mainViewModel.addFavoriteMovie(movie, position) {
+                        movieAdapter.updateItem(position)
+                    }
+                },
+                negativeButtonOnClickListener = { dialog, i ->
+                    dialog.dismiss()
+                }
+            ).show()
+        }
+    }
+
+    fun setDispatcher() {
+        onBackPressedCallBack?.let {
+            requireActivity().onBackPressedDispatcher.addCallback(this, it)
+        }
+    }
+
+    override fun onDestroy() {
+        onBackPressedCallBack?.remove()
+        onBackPressedCallBack = null
+        super.onDestroy()
+    }
+
     companion object {
         @JvmStatic
         fun newInstance() = SearchFragment()
+        const val TAG = "SearchFragment"
     }
 }
