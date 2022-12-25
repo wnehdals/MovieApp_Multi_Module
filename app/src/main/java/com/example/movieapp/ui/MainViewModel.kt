@@ -7,6 +7,7 @@ import com.example.domain.model.Movie
 import com.example.domain.repository.MovieRepository
 import com.example.movieapp.R
 import com.example.movieapp.base.BaseViewModel
+import com.example.movieapp.const.Const.API_KEY
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.kotlin.addTo
@@ -51,7 +52,7 @@ class MainViewModel @Inject constructor(private val movieRepository: MovieReposi
 
     fun getMovieList(keyword: String, page: Int) {
         movieRepository
-            .getSearchResp("92e32667", keyword, page)
+            .getSearchResp(API_KEY, keyword, page)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
