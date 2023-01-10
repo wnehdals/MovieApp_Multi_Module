@@ -1,4 +1,4 @@
-# Grip_Android_
+MovieApp_Multi_Module
 
 ## 기술스택
 - Architecture
